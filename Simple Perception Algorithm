@@ -1,0 +1,77 @@
+#Generalised Perception 2D
+
+def Percept_Init (x,y,T):
+
+   xi = np.zeros((x.shape[1],x.shape[0]))
+
+
+   for i in range(x.shape[1]):
+        for j in range(x.shape[0]):
+                xi[i,j] = x[j,i]
+
+
+   n = x.shape[1]
+   print("n: " + str(n))
+   print(xi)
+   print(y)
+
+   Perception(xi,y,n,T)
+
+def Perception (x,y,n,T):
+
+    #theta = np.zeros(n)
+    theta = np.zeros(n+1)
+    theta_0 = 0
+    count = 0
+
+    print('Count: ' + str(count) + ' ' + 'Theta Vector: ' + str(theta) + ' ' + 'Theta_0 Vector: ' + str(theta_0))
+
+    for t in range(T):
+        for i in range(x.shape[1]):
+            #x_i = np.array([x[0,i],x[1,i]])
+            x_i = np.array([x[0, i], x[1, i], 1])
+            #print(x_i)
+            if y[i]*(np.dot(theta,x_i)) <= 0:
+                theta = theta + y[i]*x_i
+                count = count + 1
+                theta_0 = theta[n]
+                print('Count: ' + str(count) + ' ' + 'Theta Vector: ' + str(theta) + ' ' + 'Theta_0 Vector: ' + str(theta_0) + ' ' + 'x_i: ' + str(x_i))
+                Perception_Plot(x,y,x_i,theta)
+
+def Perception_Plot(x,y,x_i,theta):
+
+    colour_map = ["green" if i == 1 else "red" for i in y]
+
+    theta_ = np.array([theta[0], theta[1]])
+
+    plt.axis([x[0].min() - 4, x[0].max() + 4, x[1].min() - 4, x[1].max() + 4])
+
+    plt.axhline(y=0, linestyle=":")
+    plt.axvline(x=0, linestyle=":")
+
+    plt.scatter(x[0], x[1], color=colour_map)
+    plt.plot(x_i[0], x_i[1], marker='o', markersize=18, fillstyle='none', color='black')
+
+    if np.linalg.norm(theta_) != 0:
+        plt.quiver(-1, (theta[0] - theta[2]) / theta[1], theta[0], theta[1])
+
+    if theta[1] != 0:
+        plane_x = np.linspace(x[0].min() - 4, x[0].max() + 4, 100)
+        plane_y = -(theta[0] * plane_x + theta[2]) / theta[1]
+        plt.plot(plane_x, plane_y, color='black')
+
+    plt.gca().set_aspect('equal', adjustable='box')  # set axis ratio equal
+
+    plt.show()
+
+
+#Initiation
+
+#x = {"x_1":(-4,2),"x_2":(-2,1),"x_2":(-2,1),"x_3":(-1,-1),"x_4":(2,2),"x_5":(1,2)}
+x = np.array([(-4,2),(-2,1),(-1,-1),(2,2),(1,2)])
+y = np.array([1,1,-1,-1,-1])
+
+#x = np.array([(-1,-1),(1,0),(-1,1.5)])
+#y = np.array([1,-1,1])
+
+Percept_Init(x, y, 5)
